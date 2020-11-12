@@ -3,16 +3,15 @@ layout: page
 title: About
 permalink: /about/
 ---
+![My image]({{"/asset/image.jpg"|absolute_url}})
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+I am currently the AI Research Engineer at Cinnamon AI, working on visually-rich document understanding systems.
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
-
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+In my freetime, I do some quantitative trading, watch the market movements and research about algorithmic trading. 
 
 
-[jekyll-organization]: https://github.com/jekyll
+Past Educations:
+
+- Hanoi University of Science and Technology (Bachelor, Talented engineer program in Computer Science) -- graduate of 2020
+
+- High school for gifted students, Hanoi VNU University of Science; major in Physics -- graduate of 2014
