@@ -24,7 +24,7 @@ A trained classifier train with dogs provide unexpected/unreliable output when f
 
 We can measure the uncertainty of NN by <em>confidence score</em> (the `uncertainty` and `confidence` terms are antonyms and can be used interchangable).
 
-Currently, the softmax score, i.e: the maximum element of the softmax vector of any deep NN-based classifier, is misinterpreted as the confidence score. It only give us a <em>relative probabilaties</em> between possible classes [[3]], and in practice, it's unreliable measurement of NN's confidence level.
+Currently, the softmax score, i.e: the maximum element of the softmax vector of any deep NN-based classifier, is misinterpreted as the confidence score. It only give us a <em>relative probabilaties</em> between possible classes [[3]](#3), and in practice, it's unreliable measurement of NN's confidence level.
 
 From above stories, we come to the conclusion that the modern NN doesn't master at provding a good/reliable confidence score for its predictions, that limits it applications in real world. In some high-risk applications, to push the usage of neural network to industrial level, meeting the user satisfaction, we should output a reliable level of uncertainty along with each AI-model's prediction. If the confidence score is high, we trust the AI-model, otherwise it output a low confidence score and the experts in this domain (human) will handle these cases.
 
