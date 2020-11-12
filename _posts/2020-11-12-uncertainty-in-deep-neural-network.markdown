@@ -12,7 +12,7 @@ categories: jekyll update
 
 [[1]](#1) showed that modern (very) deep neural networks can achieve high predictive performances (acurracy), but they are poorly calibrated in terms of predicting corectness.
 
-![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/poor-calibration.jpg"|absolute_url}})
+![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/poor-calibration.JPG"|absolute_url}})
 
 [[2]](#2) mathematically proved that neural networks equiped with ReLU activations yield unsensible softmax score for far-away data.
 
