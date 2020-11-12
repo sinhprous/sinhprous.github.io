@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Welcome to Jekyll!"
+title:  "Uncertainty in deep neural network"
 date:   2020-11-12 20:00:00 +0700
 categories: jekyll update
 ---
