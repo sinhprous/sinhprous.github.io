@@ -14,7 +14,7 @@ categories: jekyll update
 
 ![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/poor-calibration.jpg"|absolute_url}})
 
-[[1]](#2) mathematically proved that neural networks equiped with ReLU activations yield unsensible softmax score for far-away data.
+[[2]](#2) mathematically proved that neural networks equiped with ReLU activations yield unsensible softmax score for far-away data.
 
 An intuitive example:
 
