@@ -3,7 +3,7 @@ layout: page
 title: About
 permalink: /about/
 ---
-![My image]({{"/asset/ava.jpg"|absolute_url}}) <!-- .element height="30%" width="30%" -->
+![My image,30%]({{"/asset/ava.jpg"|absolute_url}})
 
 I am currently the AI Research Engineer at Cinnamon AI, working on visually-rich document understanding systems as both research engineer and software engineer.
 
