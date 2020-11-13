@@ -20,7 +20,7 @@ An intuitive example:
 
 ![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/cat-dog.png"|absolute_url}})
 
-A trained classifier train with dogs provide unexpected/unreliable output when fed with cats. In other words, it doesn't know <em>where it know</em>. Our expectation is that the model should output: "I guess it's Phu Quoc dog, but I am <em>not sure</em>".
+A deep NN classifier trained with dogs provides unexpected/unreliable output when being fed with cats. In other words, it doesn't know <em>where it knows</em>. This closed-world assumption makes deep neural network unaware of the cat category. Our expectation is that the model should output: "I guess it's Phu Quoc dog, but I am <em>not sure</em>".
 
 We can measure the uncertainty of NN by <em>confidence score</em> (the `uncertainty` and `confidence` terms are antonyms and can be used interchangable).
 
@@ -30,17 +30,24 @@ From above stories, we come to the conclusion that the modern NN doesn't master 
 
 #### Example of high-risk application:
 
-Cancer detection on medical image
+Cancer detection on medical image: it's unacceptable if a cancer patient is mis-classified as a normal case. Even if the AI model has 99% recall of cancer class, there are still 1% of patient will die because of the AI.
 
-Vehicle plate recognition
+Vehicle plate recognition: assume that we developed an AI vehicle plate recognition model for a car parking system with near-perfect accuracy (99%). But when applying it in real production, the 1% error rate can result in very terrible consequences, the customer can lost his car and we have to indemnify billions of VND!!!
+
+In these above applications, the AI model is just a black-box system the receives the input image, produces an output and we don't have any clue to trust or not to trust it. So it is imperative for AI system to have a reliable confidence score. Take the vehicle plate recognition as an example, if the plate is blur, occluded, or it have strange text font/alphabet, i.e: the plate is Laotian plate, but the recognition model was trained on Vietnamese registration plates, the model should output a low confidence score, that means it is not certain about its prediction, and the system will emit a warning, and the human will double-check this plate to decide whether the AI model's output is correct or wrong. The idea can be visualized by the following figure:
+
+![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/acc_conf_1.jpg"|absolute_url}})
+
+In this figure, the horizontal axis represents confidence threshold, the vertical axis represents the accuracy. The red lines describe the relation between the confidence threshold and the <em>averaged accuracy of data sample whose confidence is larger than this corresponding confidence threshold</em>. Intuitively, we can choose a threshold to guarantee that the accuracy of the AI model is perfect (100%) or equal to a certain value (for e.g: 90%). If the model's prediction has lower confidence score than the threshold, the model will reject it and need the aid from human. In this example, if we choose confidence threshold of 0.5, the we can trust the model with 100% accuracy, and we only have to double-check the data sample with confidence score smaller the 0.5. Similarly, we can guarantee the accuracy of 90% at 0.1 confidence threshold.
+
+On the contrary, the following figure illustrates an poorly calibrated confidence score behavior of an deep learning model.
+![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/acc_conf_2.jpg"|absolute_url}})
 
 #### Defenition/Metric
 
-It is a number in the range [0, 1], representing the level of confidence the neural network has for each of its predictions.
+Confidence score: a number in the range [0, 1], representing the level of confidence the neural network has for each of its predictions.
 
-For example:
-
-Metric: we can use ECE/MCE or AUC
+Metric: we can use ECE/MCE or AUC.
 
 ### 2. Types of uncertainties
 
