@@ -14,7 +14,7 @@ categories: jekyll update
 
 ![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/poor-calibration.JPG"|absolute_url}})
 
-[[2]](#2) mathematically proved that neural networks equiped with ReLU activations yield unsensible softmax score for far-away data.
+[[2]](#2) mathematically proved that neural networks equipped with ReLU activations yield unsensible softmax score for far-away data.
 
 An intuitive example:
 
@@ -24,7 +24,14 @@ A deep NN classifier trained with dogs provides unexpected/unreliable output whe
 
 We can measure the uncertainty of NN by <em>confidence score</em> (the `uncertainty` and `confidence` terms are antonyms and can be used interchangable).
 
-Currently, the softmax score, i.e: the maximum element of the softmax vector of any deep NN-based classifier, is misinterpreted as the confidence score. It only give us a <em>relative probabilaties</em> between possible classes [[3]](#3), and in practice, it's unreliable measurement of NN's confidence level.
+Currently, the softmax score, i.e: the maximum element of the softmax vector of any deep NN-based classifier, is misinterpreted as the confidence score. It only give us a <em>relative probabilaties</em> between possible classes [[3]](#3), and in most practical cases, it's unreliable measurement of NN's confidence level (*).
+
+---
+**NOTE**
+
+(*) Sometimes, the performance of advanced techniques for estimating confidence score is not as good as the original softmax score. [[4]](#4) showed that for object detection problem, the performance of original softmax score surpassed the MC-Dropout method that we will cover later.
+
+---
 
 From above stories, we come to the conclusion that the modern NN doesn't master at provding a good/reliable confidence score for its predictions, that limits it applications in real world. In some high-risk applications, to push the usage of neural network to industrial level, meeting the user satisfaction, we should output a reliable level of uncertainty along with each AI-model's prediction. If the confidence score is high, we trust the AI-model, otherwise it output a low confidence score and the experts in this domain (human) will handle these cases.
 
@@ -38,9 +45,9 @@ In these above applications, the AI model is just a black-box system the receive
 
 ![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/acc_conf_1.jpg"|absolute_url}})
 
-In this figure, the horizontal axis represents confidence threshold, the vertical axis represents the accuracy. The red lines describe the relation between the confidence threshold and the <em>averaged accuracy of data sample whose confidence is larger than this corresponding confidence threshold</em>. Intuitively, we can choose a threshold to guarantee that the accuracy of the AI model is perfect (100%) or equal to a certain value (for e.g: 90%). If the model's prediction has lower confidence score than the threshold, the model will reject it and need the aid from human. In this example, if we choose confidence threshold of 0.5, the we can trust the model with 100% accuracy, and we only have to double-check the data sample with confidence score smaller the 0.5. Similarly, we can guarantee the accuracy of 90% at 0.1 confidence threshold.
+In this figure, the horizontal axis represents confidence threshold, the vertical axis represents the accuracy. The red lines describe the relation between the confidence threshold and the <em>averaged accuracy of data sample whose confidence is larger than this corresponding confidence threshold</em>. Intuitively, we can choose a threshold to guarantee that the accuracy of the AI model is perfect (100%) or equal to a certain value (for e.g: 90%). If the model's prediction has lower confidence score than the threshold, the model will reject it and need the aid from human. In this example, if we choose confidence threshold of 0.5, then we can trust the model with 100% accuracy, and we only have to double-check the data sample with confidence score smaller the 0.5. Similarly, we can guarantee the accuracy of 90% at 0.1 confidence threshold.
 
-On the contrary, the following figure illustrates an poorly calibrated confidence score behavior of an deep learning model.
+On the contrary, the following figure illustrates a poorly calibrated confidence score behavior of a deep learning model.
 
 ![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/acc_conf_2.jpg"|absolute_url}})
 
@@ -50,23 +57,63 @@ Confidence score: a number in the range [0, 1], representing the level of confid
 
 Metric: we can use ECE/MCE or AUC.
 
+- ECE: weighted sum of the red areas in the figure 1. ECE represent the difference between the accuracy and confidence level. We would like the confidence to represent the true probability of correctness. Intuitively, if the model infers on 100 samples, each with confidence score of 0.8, then the expected accuracy for these samples should be 80%.
+
+- AUC: we also would like the confidence score to be an indicator to classify the correct prediction and wrong prediction of a DNN. Basically, if the confidence score is high, the corresponding prediction should be correct, and vice versa, if the confidence score is low, the corresponding prediction is more likely to be wrong. So we can think of confidence score as the score of a binary classification problem, and we can use the AUC metric to evaluate the performance of the confidence score of a DNN model.
+
 ### 2. Types of uncertainties
 
-- Epistemic uncertainty
+- Epistemic uncertainty: the uncertainty caused by the uncertainty of the model's weights (insufficient knowledge about which parameters best model the data). We can reduce this type of uncertainty by giving more data to the model.
 
-- Aleatoric uncertainty
+- Aleatoric uncertainty: the uncertainty caused by the characteristic of the data (for e.g: sensor noise) and can not be reduced even if we feed more data to the neural network.
 
 ### 3. Approaches
 
-- Bayesian/Variational inference method
+#### Bayesian/Variational inference method
 
-- Out-of-distribution detection
+- Monte carlo Dropout (MC Dropout)
+Normally, we used maximum likelihood to optimize the cost function of a neural network and finally end up with the fixed/deterministic model's weights (parameters). Instead of providing point estimatation of model's parameters, Bayesian NN method tries to provide a posterior distribution over model's parameters, given the training data: <img src="https://latex.codecogs.com/gif.latex?p(\omega|X, Y)\propto p(Y|X,\omega)p(\omega)" />.
 
-- Confidence score predictor
+Given posterior distribution over model's parameters, we can obtain the predictive distribution as follows:
 
-- Distance-based confidence score
+<img src="https://latex.codecogs.com/gif.latex?p(y|x, X, Y)=\int p(y|x, \omega)p(\omega|X, Y)d\omega" />
+
+The true posterior distribution over model's weight is analytically intractable, so MC Dropout approximates it by another distribution <img src="https://latex.codecogs.com/gif.latex?q(\omega)" />. This distribution is defined as:
+
+<img src="https://latex.codecogs.com/gif.latex?W_i=M_i \cdot \mathrm{diag}([z_{i,j}]_{j=1}^{K_i}))" />
+<br/><br/>
+<img src="https://latex.codecogs.com/gif.latex?z_{i,j} \sim \mathrm{Bernoulli}(p_i) \text{ for } i=1, ..., L, j=1, ..., K_{i-1}" />
+
+Where <img src="https://latex.codecogs.com/gif.latex?M_i" /> is variational parameter, <img src="https://latex.codecogs.com/gif.latex?i" /> indicates the index of layer, <img src="https://latex.codecogs.com/gif.latex?j" /> represents the index of neural unit in each layer. From these above formulas, we realize that this is exactly the form of dropout applied in the <img src="https://latex.codecogs.com/gif.latex?i" />-th layer's input: The columns of <img src="https://latex.codecogs.com/gif.latex?M_i" /> is randomly replaced by zero vector, with the probability <img src="https://latex.codecogs.com/gif.latex?p_i" />.
+
+Now, the Bayesian approximation's objective is to minimize the KL divergence between the approximated distribution <img src="https://latex.codecogs.com/gif.latex?q(\omega)" /> and the true distribution <img src="https://latex.codecogs.com/gif.latex?p(\omega|X, Y)" />. This KL divergence can be write as follows:
+
+<img src="https://latex.codecogs.com/gif.latex?-\int q(\omega) \log p(Y|X, \omega)d\omega + \mathrm{KL} (q(\omega)||p(\omega))" />.
+
+The paper [[5]](#5) and its appendix [[6]](#6) mathematically proved that this objective function is equal to the normal loss function of standard neural network equipped with dropout:
+
+<img src="https://latex.codecogs.com/gif.latex?L_{\text{dropout}} = \frac{1}{N}\sum_{i=1}^{N}\mathbb{E}(y_i, \hat{y_i})+\lambda\sum_{i=1}^{L}(||W_i||^2_2+||b||^2_2)" />.
+
+So, we come to the conclusion that training a NN with dropout is mathematically equal to approximated inference of Bayesian model.
+
+Now, to obtain the model uncertainty at test time. We use Monte Carlo integration to estimate the mean and the variance of predictive distribution above:
+
+
+
+
+- MC Batchnorm
+
+This class of methods estimates the posterior distribution over the model's weights, so it only produces `epistemic` uncertainty.
+
+#### Out-of-distribution detection
+
+#### Confidence score predictor
+
+#### Distance-based confidence score
 
 ### 4. Conclusions
+
+Reliable confidence score estimation is a good toolkit to monitor and judge the output of any deep neural network model. It paves the way for AI applications to be more trustable, interpretable, explainable and become more widely applied and deployed in real world.
 
 ### References
 <a id="1">[1]</a> 
@@ -77,3 +124,15 @@ Hein, Matthias, Maksym Andriushchenko, and Julian Bitterwolf. "Why ReLU networks
 
 <a id="3">[3]</a> 
 Kendall, Alex, Vijay Badrinarayanan, and Roberto Cipolla. "Bayesian segnet: Model uncertainty in deep convolutional encoder-decoder architectures for scene understanding." arXiv preprint arXiv:1511.02680 (2015).
+
+<a id="4">[4]</a>
+Beckersjürgen, Yannik. Uncertainty Estimation for Object Detection. Diss. 2019.
+
+<a id="5">[5]</a>
+Gal, Yarin, and Zoubin Ghahramani. "Dropout as a bayesian approximation: Representing model uncertainty in deep learning." international conference on machine learning. 2016.
+
+<a id="6">[6]</a>
+Gal, Y., and Z. Ghahramani. "Dropout as a Bayesian Approximation: Appendix 20 (2016)." URL http://arxiv. org/abs/1506.02157 1506.
+
+<a id="7">[7]</a>
+Teye, Mattias, Hossein Azizpour, and Kevin Smith. "Bayesian uncertainty estimation for batch normalized deep networks." arXiv preprint arXiv:1802.06455 (2018).
