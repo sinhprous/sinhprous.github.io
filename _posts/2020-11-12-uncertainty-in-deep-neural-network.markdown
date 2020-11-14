@@ -12,11 +12,11 @@ Please note that this post is for my own educational purpose.
 
 #### Problem with current deep neural network
 
-[[1]](#1) showed that modern (very) deep neural networks can achieve high predictive performances (acurracy), but they are poorly calibrated in terms of predicting corectness.
+[[1]](#1) showed that modern (very) deep neural networks can achieve high predictive performances (acurracy), but they are poorly calibrated in terms of predicting corectness. In other words, modern deep neural networks are <em>overconfident</em> about its predictions.
 
 ![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/poor-calibration.JPG"|absolute_url}})
 
-[[2]](#2) mathematically proved that neural networks equipped with ReLU activations yield unsensible softmax score for far-away data.
+[[2]](#2) mathematically proved that neural networks equipped with ReLU activations yield unsensible, very high softmax score for far-away data.
 
 An intuitive example:
 
@@ -59,7 +59,7 @@ Confidence score: a number in the range [0, 1], representing the level of confid
 
 Metric: we can use ECE/MCE or AUC.
 
-- ECE: weighted sum of the red areas in the figure 1. ECE represent the difference between the accuracy and confidence level. We would like the confidence to represent the true probability of correctness. Intuitively, if the model infers on 100 samples, each with confidence score of 0.8, then the expected accuracy for these samples should be 80%.
+- ECE: weighted sum of the red areas in the figure 1. ECE represent the difference between the accuracy and confidence level. We would like the confidence to represent the true probability of correctness. Intuitively, if the model infers on 100 samples, each with confidence score of 0.8, then the expected accuracy for these samples should be 80%. More detail information can be found at [[1](#1)]
 
 - AUC: we also would like the confidence score to be an indicator to classify the correct prediction and wrong prediction of a DNN. Basically, if the confidence score is high, the corresponding prediction should be correct, and vice versa, if the confidence score is low, the corresponding prediction is more likely to be wrong. So we can think of confidence score as the score of a binary classification problem, and we can use the AUC metric to evaluate the performance of the confidence score of a DNN model.
 
