@@ -112,7 +112,7 @@ From pratical point of view, in test time, we just <b>keep the dropout enabled</
 
 Example result for regression problem:
 
-![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/var.jpg"|absolute_url}})
+![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/mcdo_out.jpg"|absolute_url}})
 
 - MC Batchnorm
 
@@ -122,7 +122,7 @@ When training NN with BN, the inference at training time for a sample <img src="
 
 The detailed algorithm:
 
-![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/mc_bn.jpg"|absolute_url}})
+![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/mc_bn_alg.jpg"|absolute_url}})
 
 - Depth uncertainty:
 
