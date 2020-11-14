@@ -6,6 +6,8 @@ categories: jekyll update
 ---
 ## Uncertainty in deep neural network
 
+Please note that this post is for my own educational purpose.
+
 ### 1. Introduction
 
 #### Problem with current deep neural network
@@ -78,7 +80,7 @@ Given posterior distribution over model's parameters, we can obtain the predicti
 
 <img src="https://latex.codecogs.com/gif.latex?p(y|x, X, Y)=\int p(y|x, \omega)p(\omega|X, Y)d\omega" />
 
-The true posterior distribution over model's weight is analytically intractable, so MC Dropout approximates it by another distribution <img src="https://latex.codecogs.com/gif.latex?q(\omega)" />. This distribution is defined as:
+The true posterior distribution over model's weight is analytically intractable, so MC Dropout approximates it by a variational distribution <img src="https://latex.codecogs.com/gif.latex?q(\omega)" />. This distribution is defined as:
 
 <img src="https://latex.codecogs.com/gif.latex?W_i=M_i \cdot \mathrm{diag}([z_{i,j}]_{j=1}^{K_i}))" />
 <br/><br/>
@@ -96,20 +98,57 @@ The paper [[5]](#5) and its appendix [[6]](#6) mathematically proved that this o
 
 So, we come to the conclusion that training a NN with dropout is mathematically equal to approximated inference of Bayesian model.
 
-Now, to obtain the model uncertainty at test time. We use Monte Carlo integration to estimate the mean and the variance of predictive distribution above:
+Now, we perform moment-matching and estimate the first two moments of the predictive distribution above empirically:
 
+![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/1st_moment.jpg"|absolute_url}})
 
+![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/2nd_moment.jpg"|absolute_url}})
 
+![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/var.jpg"|absolute_url}})
+
+This Monte Carlo estimatation is referred as MC dropout by the author. 
+
+From pratical point of view, in test time, we just <b>keep the dropout enabled</b>, and perform T stochastic forward passes through the network. To obtain the final prediction we just average the results, and to obtain the model uncertainty we just <em>calculate sample variance of these results</em>.
+
+Example result for regression problem:
+
+![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/var.jpg"|absolute_url}})
 
 - MC Batchnorm
+
+Use the similar variational approximation as MC Dropout, but the source of randomness comes from batch normalization (BN) layer instead of dropout operation. 
+
+When training NN with BN, the inference at training time for a sample <img src="https://latex.codecogs.com/gif.latex?x" /> is a stochastic process, varying based on other samples in the mini-batch (which we use to calculate units' means and deviations). When performing inference at test time with standard Batchnorm, the BN units' means and standard deviations are calculated from <em>training dataset</em>, but in MC Batchnorm, we calculate these means and deviations <em>from the minibatches</em>.
+
+The detailed algorithm:
+
+![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/mc_bn.jpg"|absolute_url}})
+
+- Depth uncertainty:
+
+Different from MC Dropout and MC Batchnorm, which requires a large number <img src="https://latex.codecogs.com/gif.latex?T" /> stochastic forward passes to get stable results, this method compute exact predictive posteriors with a <em>single forward pass</em>. Depth uncertainty treats the depth of a Neural Network as a random variable over which to perform inference. The authors placed a categorical distribution over the depth of a neural network. The architecture of Depth uncertainty is shown here:
+
+![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/depth_unc.jpg"|absolute_url}})
+
+Basically, The output block is applied to each intermediate layer's activations.
+
+Predictions for new data <img src="https://latex.codecogs.com/gif.latex?x" /> are made by marginalising depth with the variational posterior:
+
+![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/depth_unc_inf.jpg"|absolute_url}})
 
 This class of methods estimates the posterior distribution over the model's weights, so it only produces `epistemic` uncertainty.
 
 #### Out-of-distribution detection
 
+TBD
+
 #### Confidence score predictor
 
+TBD
+
 #### Distance-based confidence score
+
+TBD
 
 ### 4. Conclusions
 
