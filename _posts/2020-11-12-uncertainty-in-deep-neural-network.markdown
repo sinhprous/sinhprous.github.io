@@ -12,7 +12,7 @@ Please note that this post is for my own educational purpose.
 
 #### Problem with current deep neural network
 
-[[1]](#1) showed that modern (very) deep neural networks can achieve high predictive performances (acurracy), but they are poorly calibrated in terms of predicting corectness. In other words, modern deep neural networks are <em>overconfident</em> about its predictions.
+[[1]](#1) showed that modern (very) deep neural networks can achieve high predictive performances (acurracy), but they are poorly calibrated in terms of predicting corectness. In other words, modern deep neural networks are <em>overconfident</em> about their predictions.
 
 ![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/poor-calibration.JPG"|absolute_url}})
 
