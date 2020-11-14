@@ -108,7 +108,7 @@ Now, we perform moment-matching and estimate the first two moments of the predic
 
 This Monte Carlo estimatation is referred as MC dropout by the author. 
 
-From pratical point of view, in test time, we just <b>keep the dropout enabled</b>, and perform T stochastic forward passes through the network. To obtain the final prediction we just average the results, and to obtain the model uncertainty we just <em>calculate sample variance of these results</em>.
+From pratical point of view, in test time, we just <b>keep the dropout enabled</b>, and perform T stochastic forward passes through the network. To obtain the final prediction we just average the results, and to obtain the model uncertainty we just <em>calculate sample variance of these results</em>. A good tutorial for MC dropout can be found at here https://github.com/xuwd11/Dropout_Tutorial_in_PyTorch.
 
 Example result for regression problem:
 
