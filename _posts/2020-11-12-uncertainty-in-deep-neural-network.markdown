@@ -136,7 +136,7 @@ Predictions for new data <img src="https://latex.codecogs.com/gif.latex?x" /> ar
 
 ![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/depth_unc_inf.jpg"|absolute_url}})
 
-This class of methods estimates the posterior distribution over the model's weights, so it only produces `epistemic` uncertainty.
+This class of methods estimates the posterior distribution over the model's weights/depth, so it only produces `epistemic` uncertainty.
 
 #### Out-of-distribution detection
 
