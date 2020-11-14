@@ -80,7 +80,7 @@ Given posterior distribution over model's parameters, we can obtain the predicti
 
 <img src="https://latex.codecogs.com/gif.latex?p(y|x, X, Y)=\int p(y|x, \omega)p(\omega|X, Y)d\omega" />
 
-The true posterior distribution over model's weight is analytically intractable, so MC Dropout approximates it by a variational distribution <img src="https://latex.codecogs.com/gif.latex?q(\omega)" />. This distribution is defined as:
+The true posterior distribution over model's weight is analytically intractable, so MC Dropout [[5]](#5) approximates it by a variational distribution <img src="https://latex.codecogs.com/gif.latex?q(\omega)" />. This distribution is defined as:
 
 <img src="https://latex.codecogs.com/gif.latex?W_i=M_i \cdot \mathrm{diag}([z_{i,j}]_{j=1}^{K_i}))" />
 <br/><br/>
@@ -116,7 +116,7 @@ Example result for regression problem:
 
 - MC Batchnorm
 
-Use the similar variational approximation as MC Dropout, but the source of randomness comes from batch normalization (BN) layer instead of dropout operation. 
+[[7]](#7) used the similar variational approximation as MC Dropout, but the source of randomness comes from batch normalization (BN) layer instead of dropout operation. 
 
 When training NN with BN, the inference at training time for a sample <img src="https://latex.codecogs.com/gif.latex?x" /> is a stochastic process, varying based on other samples in the mini-batch (which we use to calculate units' means and deviations). When performing inference at test time with standard Batchnorm, the BN units' means and standard deviations are calculated from <em>training dataset</em>, but in MC Batchnorm, we calculate these means and deviations <em>from the minibatches</em>.
 
@@ -126,7 +126,7 @@ The detailed algorithm:
 
 - Depth uncertainty:
 
-Different from MC Dropout and MC Batchnorm, which requires a large number <img src="https://latex.codecogs.com/gif.latex?T" /> stochastic forward passes to get stable results, this method compute exact predictive posteriors with a <em>single forward pass</em>. Depth uncertainty treats the depth of a Neural Network as a random variable over which to perform inference. The authors placed a categorical distribution over the depth of a neural network. The architecture of Depth uncertainty is shown here:
+Different from MC Dropout and MC Batchnorm, which requires a large number <img src="https://latex.codecogs.com/gif.latex?T" /> stochastic forward passes to get stable results, this method [[8]](#8) compute exact predictive posteriors with a <em>single forward pass</em>. Depth uncertainty treats the depth of a Neural Network as a random variable over which to perform inference. The authors placed a categorical distribution over the depth of a neural network. The architecture of Depth uncertainty is shown here:
 
 ![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/depth_unc.jpg"|absolute_url}})
 
@@ -175,3 +175,6 @@ Gal, Y., and Z. Ghahramani. "Dropout as a Bayesian Approximation: Appendix 20 (2
 
 <a id="7">[7]</a>
 Teye, Mattias, Hossein Azizpour, and Kevin Smith. "Bayesian uncertainty estimation for batch normalized deep networks." arXiv preprint arXiv:1802.06455 (2018).
+
+<a id="8">[8]</a>
+Antorán, Javier, James Allingham, and José Miguel Hernández-Lobato. "Depth uncertainty in neural networks." Advances in Neural Information Processing Systems 33 (2020).
