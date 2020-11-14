@@ -74,6 +74,7 @@ Metric: we can use ECE/MCE or AUC.
 #### Bayesian/Variational inference method
 
 - Monte carlo Dropout (MC Dropout)
+
 Normally, we used maximum likelihood to optimize the cost function of a neural network and finally end up with the fixed/deterministic model's weights (parameters). Instead of providing point estimatation of model's parameters, Bayesian NN method tries to provide a posterior distribution over model's parameters, given the training data: <img src="https://latex.codecogs.com/gif.latex?p(\omega|X, Y)\propto p(Y|X,\omega)p(\omega)" />.
 
 Given posterior distribution over model's parameters, we can obtain the predictive distribution as follows:
