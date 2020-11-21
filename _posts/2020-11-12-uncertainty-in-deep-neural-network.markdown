@@ -173,7 +173,7 @@ This class of methods tries to directly predict a number indicating the confiden
 
 Here, the <img src="https://latex.codecogs.com/gif.latex?\sigma{(x_i)}"/> is the observation noise parameter, which is data-dependent.
 
-When being combined with MC-Dropout, the function <img src="https://latex.codecogs.com/gif.latex?f}"/> is simply a neural network equipped with dropout layers. Because the variance is data-dependent, we can use a single network with two heads that predicts both the <img src="https://latex.codecogs.com/gif.latex?f(x)}"/> and the <img src="https://latex.codecogs.com/gif.latex?\sigma{(x_i)}"/>.
+When being combined with MC-Dropout, the function <img src="https://latex.codecogs.com/gif.latex?f"/> is simply a neural network equipped with dropout layers. Because the variance is data-dependent, we can use a single network with two heads that predicts both the <img src="https://latex.codecogs.com/gif.latex?f(x_i)"/> and the <img src="https://latex.codecogs.com/gif.latex?\sigma{(x_i)}"/>.
 
 Quoted from the paper:
 
@@ -187,7 +187,7 @@ Intuitively, this kind of loss function can learn to mitigate the effect of nois
 
 Basically, the model in [[10]](#10) takes input as a human pose and predicts a distance from this human to the camera in the real world coordinates.
 
-In the figure, the ellipses represent the confidence intervals. In the top image, the predicted confidence interval is small and the detection accurate. In the bottom image, the authors created an outlier pose by projecting on the ground the original pose. The network predicts higher uncertainty, a useful indicator to warn about out-of-distribution samples.
+In the figure, the ellipses represent the confidence intervals. In the top image, the predicted confidence interval is small and the detection is accurate. In the bottom image, the authors created an outlier pose by projecting on the ground the original pose. The network predicts higher uncertainty, a useful indicator to warn about out-of-distribution samples.
 
 - Classification
 
