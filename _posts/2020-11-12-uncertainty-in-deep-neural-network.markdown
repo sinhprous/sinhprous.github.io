@@ -16,6 +16,9 @@ Please note that this post is for my own educational purpose.
 
 ![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/poor-calibration.JPG"|absolute_url}})
 
+Quoted from the paper: 
+> This is visualized in Figure 1, which compares a 5-layer LeNet (left) (LeCun et al., 1998) with a 110-layer ResNet (right) (He et al., 2016) on the CIFAR-100 dataset. The top row shows the distribution of prediction confidence (i.e. probabilities associated with the predicted label) as histograms. The average confidence of LeNet closely matches its accuracy, while the average confidence of the ResNet is substantially higher than its accuracy. This is further illustrated in the bottom row reliability diagrams (DeGroot & Fienberg, 1983; Niculescu-Mizil & Caruana, 2005), which show accuracy as a function of confidence. We see that LeNet is well-calibrated, as confidence closely approximates the expected accuracy (i.e. the bars align roughly along the diagonal). On the other hand, the ResNet’s accuracy is better, but does not match its confidence.
+
 [[2]](#2) mathematically proved that neural networks equipped with ReLU activations yield unsensible, very high softmax score for far-away data.
 
 An intuitive example:
@@ -57,23 +60,27 @@ On the contrary, the following figure illustrates a poorly calibrated confidence
 
 Confidence score: a number in the range [0, 1], representing the level of confidence the neural network has for each of its predictions.
 
-Metric: we can use ECE/MCE or AUC.
+Metrics:
 
 - ECE: weighted sum of the red areas in the figure 1. ECE represent the difference between the accuracy and confidence level. We would like the confidence to represent the true probability of correctness. Intuitively, if the model infers on 100 samples, each with confidence score of 0.8, then the expected accuracy for these samples should be 80%. More detail information can be found at [[1](#1)]
 
 - AUC: we also would like the confidence score to be an indicator to classify the correct prediction and wrong prediction of a DNN. Basically, if the confidence score is high, the corresponding prediction should be correct, and vice versa, if the confidence score is low, the corresponding prediction is more likely to be wrong. So we can think of confidence score as the score of a binary classification problem, and we can use the AUC metric to evaluate the performance of the confidence score of a DNN model.
 
+- Negative log likelihood: is a standard measure of a probabilistic model’s quality. Given a probabilistic model <img src="https://latex.codecogs.com/gif.latex?\hat{\pi}(Y|X)"/> and <img src="https://latex.codecogs.com/gif.latex?n"/> samples, NLL is defined as:
+
+<img src="https://latex.codecogs.com/gif.latex?L=-\sum_{i=1}^{n}\log{\hat{\pi}(y_i|x_i)}"/>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;It is a standard result that, in expectation, NLL is minimized if and only if <img src="https://latex.codecogs.com/gif.latex?\hat{\pi}(Y|X)"/> recovers the ground truth conditional distribution <img src="https://latex.codecogs.com/gif.latex?\pi(Y|X)"/> [[1]](#1).
+
 ### 2. Types of uncertainties
 
-- Epistemic uncertainty: the uncertainty caused by the uncertainty of the model's weights (insufficient knowledge about which parameters best model the data). We can reduce this type of uncertainty by giving more data to the model.
+- Epistemic uncertainty (uncertainty over the parameters): the uncertainty caused by the uncertainty of the model's weights (insufficient knowledge about which parameters best model the data). We can reduce this type of uncertainty by giving more data to the model.
 
-- Aleatoric uncertainty: the uncertainty caused by the characteristic of the data (for e.g: sensor noise) and can not be reduced even if we feed more data to the neural network.
+- Aleatoric uncertainty: the uncertainty caused by the inherent characteristic of the data (for e.g: sensor noise) and can not be reduced even if we feed more data to the neural network.
 
 ### 3. Approaches
 
 #### Bayesian/Variational inference method
-
-- Monte carlo Dropout (MC Dropout)
 
 Normally, we used maximum likelihood to optimize the cost function of a neural network and finally end up with the fixed/deterministic model's weights (parameters). Instead of providing point estimatation of model's parameters, Bayesian NN method tries to provide a posterior distribution over model's parameters, given the training data: <img src="https://latex.codecogs.com/gif.latex?p(\omega|X, Y)\propto p(Y|X,\omega)p(\omega)" />.
 
@@ -81,7 +88,9 @@ Given posterior distribution over model's parameters, we can obtain the predicti
 
 <img src="https://latex.codecogs.com/gif.latex?p(y|x, X, Y)=\int p(y|x, \omega)p(\omega|X, Y)d\omega" />
 
-The true posterior distribution over model's weight is analytically intractable, so MC Dropout [[5]](#5) approximates it by a variational distribution <img src="https://latex.codecogs.com/gif.latex?q(\omega)" />. This distribution is defined as:
+- Monte carlo Dropout (MC Dropout)
+
+The above true posterior distribution over model's weight is analytically intractable, so MC Dropout [[5]](#5) approximates it by a variational distribution <img src="https://latex.codecogs.com/gif.latex?q(\omega)" />. This distribution is defined as:
 
 <img src="https://latex.codecogs.com/gif.latex?W_i=M_i \cdot \mathrm{diag}([z_{i,j}]_{j=1}^{K_i}))" />
 <br/><br/>
@@ -107,13 +116,15 @@ Now, we perform moment-matching and estimate the first two moments of the predic
 
 ![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/var.jpg"|absolute_url}})
 
-This Monte Carlo estimatation is referred as MC dropout by the author. 
+This Monte Carlo estimatation is referred as MC dropout by the author. From these calculated moments, we can derive the uncertain level by calculating the variance of the NN's outputs.
 
 From pratical point of view, in test time, we just <b>keep the dropout enabled</b>, and perform T stochastic forward passes through the network. To obtain the final prediction we just average the results, and to obtain the model uncertainty we just <em>calculate sample variance of these results</em>. Some good tutorial/code examples for MC dropout can be found at here https://github.com/valyome/Neural-Networks-with-MC-Dropout and here https://github.com/xuwd11/Dropout_Tutorial_in_PyTorch.
 
 Example result for regression problem:
 
 ![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/mcdo_out.jpg"|absolute_url}})
+
+It's exactly our expectation: the model not only provides a point estimate of the output, but also a variance estimation for the output. In the figure (c), the right side of the dashed line is the out-of-distribution data area, the left side is the area of training data; we can see that: the more far away from the training data the example is, the larger the variance (uncertainty) of the output of NN for this example is.
 
 - MC Batchnorm
 
@@ -142,13 +153,45 @@ Uncertainty (variance of predictions) can also be calculated exactly:
 
 This class of methods estimates the posterior distribution over the model's weights/depth, so it only produces `epistemic` uncertainty.
 
+#### Classifier's regularization
+
+TBD
+
 #### Out-of-distribution detection
 
 TBD
 
 #### Confidence score predictor
 
-TBD
+This class of methods tries to directly predict a number indicating the confidence level of the model.
+
+- Regression
+
+[[9]](#9) combined MC-Dropout, which captures epistemic uncertainty, with a modified loss function which directly captures aleatoric uncertainty. 
+
+![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/aleatoric_loss.jpg"|absolute_url}})
+
+Here, the <img src="https://latex.codecogs.com/gif.latex?\sigma{(x_i)}"/> is the observation noise parameter, which is data-dependent.
+
+When being combined with MC-Dropout, the function <img src="https://latex.codecogs.com/gif.latex?f}"/> is simply a neural network equipped with dropout layers. Because the variance is data-dependent, we can use a single network with two heads that predicts both the <img src="https://latex.codecogs.com/gif.latex?f(x)}"/> and the <img src="https://latex.codecogs.com/gif.latex?\sigma{(x_i)}"/>.
+
+Quoted from the paper:
+
+> This loss consists of two components; the residual regression obtained with a stochastic sample through the model – making use of the uncertainty over the parameters – and an uncertainty regularization term. We do not need ‘uncertainty labels’ to learn uncertainty. Rather, we only need to supervise the learning of the regression task. We learn the variance, <img src="https://latex.codecogs.com/gif.latex?\sigma^2"/>., implicitly from the loss function. The second regularization term prevents the network from predicting infinite uncertainty (and therefore zero loss) for all data points.
+
+Intuitively, this kind of loss function can learn to mitigate the effect of noisy/erroneous labels by predicting a large <img src="https://latex.codecogs.com/gif.latex?\sigma"/> for these examples, but it will be discouraged to predict high uncertainties for all the data points through the second term, because large uncertainty will result in a very high loss. And vice versa, for 'easy' examples, the loss function can learn to predict a small <img src="https://latex.codecogs.com/gif.latex?\sigma"/>, and similarly the first term of the loss function will penalize the model in case it predicts small uncertainties for all the data points.
+
+[[10]](#10) successfully applied this technique to the problem of monocular 3D pedestrian localization. This is a qualitative example:
+
+![figure]({{"/asset/2020-11-12-uncertainty-in-deep-neural-network/monoloco.jpg"|absolute_url}})
+
+Basically, the model in [[10]](#10) takes input as a human pose and predicts a distance from this human to the camera in the real world coordinates.
+
+In the figure, the ellipses represent the confidence intervals. In the top image, the predicted confidence interval is small and the detection accurate. In the bottom image, the authors created an outlier pose by projecting on the ground the original pose. The network predicts higher uncertainty, a useful indicator to warn about out-of-distribution samples.
+
+- Classification
+
+The idea of this class of methods is very simple. [[11]](#11) and [[12]](#12) used two-headed neural networks to predict both the target variable <img src="https://latex.codecogs.com/gif.latex?\hat{y_i}"/> of the original problem and a confidence score <img src="https://latex.codecogs.com/gif.latex?p_i"/> in the range [0,1]. The ground truth for confidence score head is a binary variable <img src="https://latex.codecogs.com/gif.latex?(\hat{y_i}==y_i|x_i \in \textrm{D}_\textrm{in})"/>, i.e: whether the network is correct or wrong when predicting the target <img src="https://latex.codecogs.com/gif.latex?y_i"/> or whether the example is in-distribution (<img src="https://latex.codecogs.com/gif.latex?\textrm{D}_\textrm{in}"/>) or out-of-distritbution data. <img src="https://latex.codecogs.com/gif.latex?p_i"/> is the softmax score for this binary classification problem, we expect <img src="https://latex.codecogs.com/gif.latex?p_i"/> to be high if this example is in-distribution data, or this example is correctly classified, and vice versa.
 
 #### Distance-based confidence score
 
@@ -182,3 +225,15 @@ Teye, Mattias, Hossein Azizpour, and Kevin Smith. "Bayesian uncertainty estimati
 
 <a id="8">[8]</a>
 Antorán, Javier, James Allingham, and José Miguel Hernández-Lobato. "Depth uncertainty in neural networks." Advances in Neural Information Processing Systems 33 (2020).
+
+<a id="9">[9]</a>
+Kendall, Alex, and Yarin Gal. "What uncertainties do we need in bayesian deep learning for computer vision?." Advances in neural information processing systems. 2017.
+
+<a id="10">[10]</a>
+Bertoni, Lorenzo, Sven Kreiss, and Alexandre Alahi. "Monoloco: Monocular 3d pedestrian localization and uncertainty estimation." Proceedings of the IEEE International Conference on Computer Vision. 2019.
+
+<a id="11">[11]</a>
+Bevandić, Petra, et al. "Simultaneous semantic segmentation and outlier detection in presence of domain shift." German Conference on Pattern Recognition. Springer, Cham, 2019.
+
+<a id="12">[12]</a>
+Mor, Noam, and Lior Wolf. "Confidence prediction for lexicon-free OCR." 2018 IEEE Winter Conference on Applications of Computer Vision (WACV). IEEE, 2018.
